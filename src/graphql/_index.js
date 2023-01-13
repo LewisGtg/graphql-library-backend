@@ -1,9 +1,11 @@
+const { mergeTypeDefs } = require('@graphql-tools/merge')
 const fs = require('fs');
 const path = require('path');
 const basename = path.basename(__filename);
 
 const gqlTypedefs = [];
 const gqlResolvers = {};
+const gqlRelationResolvers = {};
 const gqlMutationResolvers = {}
 
 fs.readdirSync(__dirname)
@@ -17,19 +19,23 @@ fs.readdirSync(__dirname)
         const { resolvers, typedefs, relationResolvers, mutations } = graphNode;
         if (typedefs) gqlTypedefs.push(typedefs);
         for (const resolver in resolvers) gqlResolvers[resolver] = resolvers[resolver];
+        for (const resolver in relationResolvers)
+            gqlRelationResolvers[resolver] = relationResolvers[resolver];
         for (const resolver in mutations)
             gqlMutationResolvers[resolver] = mutations[resolver];
     });
 
 
-const typeDefs = gqlTypedefs[0];
+const typeDefs = mergeTypeDefs(gqlTypedefs);
 const resolvers = {
     Query: {
         ...gqlResolvers
     },
+    ...gqlRelationResolvers,
     Mutation: {
         ...gqlMutationResolvers
     }
 }
+
 
 module.exports = { typeDefs, resolvers }
