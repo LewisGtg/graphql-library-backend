@@ -11,10 +11,11 @@ Book.init({
     pagesQty: {
         type: DataTypes.INTEGER,
         required: true
-    }
+    },
 }, {
     sequelize,
-    modelName: 'book'
+    modelName: 'book',
+    timestamps: false
 });
 
 module.exports = Book;
