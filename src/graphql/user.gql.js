@@ -13,11 +13,13 @@ const typedefs = `#graphql
     type User {
         username: String!,
         name: String!,
+        role: String!
         books: [Book!]!
     }
 
     input userInput {
         username: String!,
+        role: String!
         name: String!,
         password: String!
     }
@@ -29,7 +31,8 @@ const typedefs = `#graphql
 
     type UserToken {
         token: String!,
-        username: String!
+        username: String!,
+        role: String!
     }
 
     type Query {
@@ -55,7 +58,6 @@ const resolvers = {
     },
     user: async (parent, args) => {
         const user = await User.findOne({ where: { id: args.id } });
-        console.log(user);
 
         if (!user)
             throw new ApolloError('Usuário não encontrado!', 422);
@@ -100,9 +102,9 @@ const mutations = {
             throw new ApolloError('Usuário ou senha incorretos');
 
         const privateKeyPath = path.join(__dirname, '..', '..', '/private.key');
-        const privateKey = fs.readFileSync(privateKeyPath);
+        const privateKey = fs.readFileSync(privateKeyPath, 'utf8');
 
-        const token = jwt.sign({ username: args.user.username }, privateKey, {
+        const token = jwt.sign({ username: args.user.username, role: user.role }, privateKey, { 
             expiresIn: '1h'
         });  
 
